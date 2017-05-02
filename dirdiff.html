@@ -13,50 +13,79 @@ th, td {
     padding: 15px;
     text-align: left;
 }
-
+#myInput {
+    width: 100%; /* Full-width */
+    padding: 12px;
+    border: 1px solid #ddd; /* Add a grey border */
+    margin-bottom: 12px; /* Add some space below the input */
+}
 </style>
  </head>
-    <body>
-    <h1>DirDiff 1.1</h1>
+ <body>
+    <h1>DirDiff 1.2</h1>
     <h2>Verktøy for å sammenligne filmapper</h2>
     <p>Støtter: txt, xml, html</p>
+    <p>Features: searsh</p>
     
-<input type="file" id="files-input" name="files[]" multiple />
-<output id="list"></output>
-
-<table id=maintable>
-<th>Mappe 1 <input type="file" id="files-input1" multiple /></th>
-<th>Mappe 2 <input type="file" id="files-input2" multiple /></th>
-
-</table>
+    <input type="text" id="myInput" onkeyup="search_filter()" placeholder="Search for file names.." title="Type in a name">
+    
+    <table id=maintable>
+        <th>Mappe 1 <input type="file" id="files-input1" multiple /></th>
+        <th>Mappe 2 <input type="file" id="files-input2" multiple /></th>
+    </table>
 
 </body>
+
 <script src="lib/jquery-3.2.1.js"></script>
 <script>
-// Check for the various File API support.
-if (window.File && window.FileReader && window.FileList && window.Blob) {
-  // Great success! All the File APIs are supported.
-} else {
-  alert('The File APIs are not fully supported in this browser.');
-}
+    // Check for the various File API support.
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+        // Great success! All the File APIs are supported.
+    } else {
+        alert('The File APIs are not fully supported in this browser.');
+    }
 </script>
 
 <script>
+    var mappe1;
+    var mappe2;
 
+    // detect a change in a file input with an id of “the-file-input”
+    $("#files-input1").change(function() {
+        mappe1 = this.files; // FileList object
+        console.log(mappe1);
 
-// detect a change in a file input with an id of “the-file-input”
-$("#files-input1").change(function() {
-    var files = this.files; // FileList object
-    console.log(files);
-
-    for (var i = 0, f; f = files[i]; i++) {
-        $("#maintable").find("tbody").append($('<tr>').append($('<td>').text(f.name)));
+        for (var i = 0, f; f = mappe1[i]; i++) {
+            $("#maintable").find("tbody").append($('<tr>').append($('<td>').text(f.name)));
+        }
+    });
+    
+    $("#files-input2").change(function() {
+        mappe2 = this.files; // FileList object
+        console.log(mappe2);
+        for (var i = 0, f; f = files[i]; i++) {
+            $("#maintable").find("tbody").append($('<tr>').append($('<td>').text(f.name)));
+        }
+    });
+    
+     // https://www.w3schools.com/howto/howto_js_filter_table.asp
+    function search_filter() {
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("maintable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }       
+        }
     }
-});
-$("#files-input2").change(function() {
-    var files = this.files; // FileList object
-    console.log(files);
-});
 
 </script>
 

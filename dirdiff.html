@@ -20,10 +20,10 @@ input {
 </style>
  </head>
  <body>
-    <h1>DirDiff 2.0</h1>
+    <h1>DirDiff 2.1</h1>
     <h2>Verktøy for å sammenligne filmapper</h2>
     <p>Støtter: txt, xml, html</p>
-    <p>Features: searsh, sort, toggle, metadata, textarea</p>
+    <p>Features: searsh, sort, toggle, metadata, textarea, diff</p>
     
     <table id=maintable>
     <thead>
@@ -42,7 +42,7 @@ input {
 </body>
 
 <script src="lib/jquery-3.2.1.js"></script>
-<script src="lib/diff_lib.js"></script>
+<script src="lib/TextDifferencer.js"></script>
 
 <script>
     // Check for the various File API support.
@@ -84,25 +84,17 @@ input {
         for (var i = 0, f; f = mappe1[i]; i++) {
                 $("#maintable").find("tbody").append($('<tr>')
                         .append($('<td>')
-                                .append($('<div>'+f.name+'</div>').addClass("file"))
-                                .append($('<div></div>')
-                                 //   .append($('<button id="buttonCompare" >Compare</button>').click( 
-                                         //   compareTexts(
-                                         //       $(this).find("div.content"),
-                                         //       $(this).closest("td").next().find("div.content")) 
-                                  //       alert("Compare klicked");
-                                  //       )
-                                 //    )
+                                .append($('<div class="file">'+f.name+'</div>')
+                                    .click(function() { $(this).closest("tr").find('.metadata').toggle(); }))
+                                .append($('<div class="metadata"></div>')
                                     .append($('<div><strong>Type: </strong>'+ (f.type || 'n/a') +'</div>').addClass("type"))
                                     .append($('<div><strong>Size: </strong>'+f.size +' bytes'+'</div>').addClass("size"))
                                     .append($('<div><strong>Modified: </strong>'+ (f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a') +'</div>').addClass("lastModifiedDate"))
                                     .append($('<div class="content">')
-                                        .append($('<label><strong>Content:</strong></label><br /><textarea id="'+f.name +'-1" cols="80" rows="10">').val(readFile(f,f.name+'-1'))))
-                                .addClass("metadata")
-                                .show()))
+                                        .append($('<label><strong>Content:</strong><br /></label>'))
+                                        .append($('<textarea id="'+f.name +'-1" cols="80" rows="10">').val(readFile(f,f.name+'-1'))))
+                                .hide()))
                         .append($('<td>'))
-                        .click( function() { $(this).find('.metadata').toggle(); })
-
                 );
             }
     });
@@ -148,17 +140,27 @@ input {
                            neigbor.next("td").find("div.content textarea").val(readFile(f,id));
                            
                     } else { 
-                        neigbor.find("div.metadata").show();
+                        neigbor.find("div.metadata").hide();
                         neigbor.next("td")
-                            .append($('<div>'+f.name+'</div>').addClass("file"))
-                            .append($('<div></div>')
+                                .append($('<div class="file">'+f.name+'</div>')
+                                    .click(function() { $(this).closest("tr").find('.metadata').toggle(); }))
+                                .append($('<div class="metadata"></div>')
                                     .append($('<div><strong>Type: </strong>'+ (f.type || 'n/a') +'</div>').addClass("type"))
                                     .append($('<div><strong>Size: </strong>'+f.size +' bytes'+'</div>').addClass("size"))
                                     .append($('<div><strong>Modified: </strong>'+ (f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a') +'</div>').addClass("lastModifiedDate"))
                                     .append($('<div class="content">')
-                                        .append($('<label><strong>Content:</strong></label><br /><textarea id="'+f.name +'-2" cols="80" rows="10">').val(readFile(f,f.name+'-2'))))
-                                .addClass("metadata")
-                                .show());
+                                        .append($('<label><strong>Content:</strong><br /></label>'))
+                                        .append($('<textarea id="'+f.name +'-2" cols="80" rows="10">').val(readFile(f,f.name+'-2')))
+                                        .append($('<button id="compare" >Compare</button>').click( function() {
+                                                alert('Compare: ' + $(this).closest("td").prev().find("textarea").val() +'   '+ $(this).parent().find("textarea").val());
+                                                $(this).parent().find("div.diff").html(
+                                                        new TextDifferencer().findDifferencesBetweenStrings(
+                                                            $(this).closest("td").prev().find("textarea").val(), 
+                                                            $(this).parent().find("textarea").val())
+                                                        .toString());
+                                                }))
+                                        .append($('<div class=diff></div>')))
+                                .hide());
                     }
                 } else if (neigbor.next("td").length > 0 && neigbor.next("td").find("div.file").text().localeCompare(f.name) == 0) {
            //         alert('same file name in the column. Replace');
@@ -175,36 +177,32 @@ input {
                         neigbor.closest('tr').before($('<tr>')
                                     .append($('<td>'))
                                     .append($('<td>')
-                                        .append($('<div>'+f.name+'</div>').addClass("file"))
-                                        .append($('<div></div>')
+                                        .append($('<div class="file">'+f.name+'</div>')
+                                                .click(function() { $(this).closest("tr").find('.metadata').toggle(); }))
+                                        .append($('<div class="metadata"></div>')
                                             .append($('<div><strong>Type: </strong>'+ (f.type || 'n/a') +'</div>').addClass("type"))
                                             .append($('<div><strong>Size: </strong>'+f.size +' bytes'+'</div>').addClass("size"))
                                             .append($('<div><strong>Modified: </strong>'+ (f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a') +'</div>').addClass("lastModifiedDate"))
                                             .append($('<div class="content">')
-                                                .append($('<label><strong>Content:</strong></label><br /><textarea id="'+f.name +'-2" cols="80" rows="10">').val(readFile(f,f.name+'-2'))))
-                                        .addClass("metadata")
-                                        .show())
-                                     )
-                                    .click( function() { $(this).find('.metadata').toggle(); })
-
+                                                .append($('<label><strong>Content:</strong><br /></label>'))
+                                                .append($('<textarea id="'+f.name +'-2" cols="80" rows="10">').val(readFile(f,f.name+'-2'))))
+                                    .hide()))
                         );
                 } else {
             //            alert('unik file name');
                         neigbor.closest('tr').after($('<tr>')
                             .append($('<td>'))
                             .append($('<td>')
-                                .append($('<div>'+f.name+'</div>').addClass("file"))
-                                .append($('<div></div>')
-                                    .append($('<div><strong>Type: </strong>'+ (f.type || 'n/a') +'</div>').addClass("type"))
-                                    .append($('<div><strong>Size: </strong>'+f.size +' bytes'+'</div>').addClass("size"))
-                                    .append($('<div><strong>Modified: </strong>'+ (f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a') +'</div>').addClass("lastModifiedDate"))
-                                    .append($('<div class="content">')
-                                        .append($('<label><strong>Content:</strong></label><br /><textarea id="'+f.name +'-2" cols="80" rows="10">').val(readFile(f,f.name+'-2'))))
-                                .addClass("metadata")
-                                .show())
-                            )
-                            .click( function() { $(this).find('.metadata').toggle(); })
-
+                                    .append($('<div class="file">'+f.name+'</div>')
+                                            .click(function() { $(this).closest("tr").find('.metadata').toggle(); }))
+                                    .append($('<div class="metadata"></div>')
+                                        .append($('<div><strong>Type: </strong>'+ (f.type || 'n/a') +'</div>').addClass("type"))
+                                        .append($('<div><strong>Size: </strong>'+f.size +' bytes'+'</div>').addClass("size"))
+                                        .append($('<div><strong>Modified: </strong>'+ (f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a') +'</div>').addClass("lastModifiedDate"))
+                                         .append($('<div class="content">')
+                                            .append($('<label><strong>Content:</strong><br /></label>'))
+                                            .append($('<textarea id="'+f.name +'-2" cols="80" rows="10">').val(readFile(f,f.name+'-2'))))
+                            .hide()))
                         );
                 }
             }

@@ -8,30 +8,32 @@ table {
 
 tr:hover { background-color: #f5f5f5 }
 
-th, td {
+th, td, input[type='text'] {
     border-bottom: 1px solid #ddd;
     padding: 15px;
     text-align: left;
 }
-#myInput {
+input {
     width: 100%; /* Full-width */
-    padding: 12px;
-    border: 1px solid #ddd; /* Add a grey border */
     margin-bottom: 12px; /* Add some space below the input */
 }
 </style>
  </head>
  <body>
-    <h1>DirDiff 1.2</h1>
+    <h1>DirDiff 1.3</h1>
     <h2>Verktøy for å sammenligne filmapper</h2>
     <p>Støtter: txt, xml, html</p>
     <p>Features: searsh</p>
     
-    <input type="text" id="myInput" onkeyup="search_filter()" placeholder="Search for file names.." title="Type in a name">
-    
     <table id=maintable>
-        <th>Mappe 1 <input type="file" id="files-input1" multiple /></th>
-        <th>Mappe 2 <input type="file" id="files-input2" multiple /></th>
+        <th>Mappe 1 
+            <br><br><input type="file" id="files-input1" multiple />
+            <br><input type="text" id="myInput1" onkeyup="search_filter(this,0)" placeholder="Søke filnavn" title="Type in a name">
+        </th>
+        <th>Mappe 2 
+            <br><br><input type="file" id="files-input2" multiple />
+            <br><input type="text" id="myInput2" onkeyup="search_filter(this,1)" placeholder="Søke filnavn" title="Type in a name">
+        </th>
     </table>
 
 </body>
@@ -47,36 +49,59 @@ th, td {
 </script>
 
 <script>
-    var mappe1;
-    var mappe2;
+    var mappe1, mappe2; // FileList objects
 
-    // detect a change in a file input with an id of “the-file-input”
     $("#files-input1").change(function() {
-        mappe1 = this.files; // FileList object
+        mappe1 = this.files; 
         console.log(mappe1);
-
-        for (var i = 0, f; f = mappe1[i]; i++) {
-            $("#maintable").find("tbody").append($('<tr>').append($('<td>').text(f.name)));
+        // if there only header -> insert data in the column
+        if ($("#maintable").find("tbody").children().length == 1) {
+            for (var i = 0, f; f = mappe1[i]; i++) {
+                $("#maintable").find("tbody").append($('<tr>')
+                        .append($('<td>').text(f.name))
+                        .append($('<td>'))
+                );
+            }
+        } else {
+            // clear the column
+            
+            // fill the column
+            for (var i = 0, f; f = mappe1[i]; i++) {
+                $("#maintable").find('tr:nth-child('+(i+2)+')')
+                        .find('td:nth-child('+1+')').text(f.name);
+            }
         }
     });
     
     $("#files-input2").change(function() {
         mappe2 = this.files; // FileList object
         console.log(mappe2);
-        for (var i = 0, f; f = files[i]; i++) {
-            $("#maintable").find("tbody").append($('<tr>').append($('<td>').text(f.name)));
+        // if there only header -> insert data in the column
+        if ($("#maintable").find("tbody").children().length == 1) {
+            for (var i = 0, f; f = mappe2[i]; i++) {
+                $("#maintable").find("tbody").append($('<tr>')
+                        .append($('<td>'))
+                        .append($('<td>').text(f.name))
+                );
+            }
+        } else {
+        // fill the column
+            for (var i = 0, f; f = mappe2[i]; i++) {
+                $("#maintable").find('tr:nth-child('+(i+2)+')')
+                        .find('td:nth-child('+2+')').text(f.name);
+            }
         }
     });
+
     
-     // https://www.w3schools.com/howto/howto_js_filter_table.asp
-    function search_filter() {
+    // https://www.w3schools.com/howto/howto_js_filter_table.asp
+    function search_filter(input,column) {
         var input, filter, table, tr, td, i;
-        input = document.getElementById("myInput");
         filter = input.value.toUpperCase();
         table = document.getElementById("maintable");
         tr = table.getElementsByTagName("tr");
         for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[0];
+            td = tr[i].getElementsByTagName("td")[column];
             if (td) {
                 if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
                     tr[i].style.display = "";

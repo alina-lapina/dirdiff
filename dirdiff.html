@@ -6,11 +6,10 @@ table {
     width: 100%;
 }
 
-tr:hover {background-color: #f5f5f5}
+tr:hover { background-color: #f5f5f5 }
+
 th, td {
     border-bottom: 1px solid #ddd;
-}
-th, td {
     padding: 15px;
     text-align: left;
 }
@@ -18,17 +17,16 @@ th, td {
 </style>
  </head>
     <body>
-    <h1>DirDiff 1.0</h1>
+    <h1>DirDiff 1.1</h1>
     <h2>Verktøy for å sammenligne filmapper</h2>
     <p>Støtter: txt, xml, html</p>
+    
+<input type="file" id="files-input" name="files[]" multiple />
+<output id="list"></output>
 
 <table id=maintable>
-<th>Mappe 1 <input type="file" id="files-input1" name="files[]" multiple /></th>
-<th>Mappe 2 <input type="file" id="files-input2" name="files[]" multiple /></th>
-<tr><td>Kjdfakfj øjrjøeja fjøl jijæa jj</td><td>Lawop384t7y 8498 uurr ip ip </td></tr>
-<tr><td>Kjdfakgjhgjhfjøl jijæa jj</td><td>Lh84t7y 8499786765354p ip </td></tr>
-<tr><td>Kjdfakfj øjrjhghjuy876gjj</td><td>Lawop384t7y 8jhbjhrr ip ip </td></tr>
-<tr><td>dgfdgfc54 4322 eja fjøl jijæa jj</td><td>hgfp384t7y 8498 uurr ip ip </td></tr>
+<th>Mappe 1 <input type="file" id="files-input1" multiple /></th>
+<th>Mappe 2 <input type="file" id="files-input2" multiple /></th>
 
 </table>
 
@@ -48,30 +46,18 @@ if (window.File && window.FileReader && window.FileList && window.Blob) {
 
 // detect a change in a file input with an id of “the-file-input”
 $("#files-input1").change(function() {
-    // will log a FileList object, view gifs below
-    console.log(this.files);
+    var files = this.files; // FileList object
+    console.log(files);
+
+    for (var i = 0, f; f = files[i]; i++) {
+        $("#maintable").find("tbody").append($('<tr>').append($('<td>').text(f.name)));
+    }
 });
 $("#files-input2").change(function() {
-    // will log a FileList object, view gifs below
-    console.log(this.files);
+    var files = this.files; // FileList object
+    console.log(files);
 });
 
-  function handleFileSelect(evt) {
-    var files = evt.target.files; // FileList object
-
-    // files is a FileList of File objects. List some properties.
-    var output = [];
-    for (var i = 0, f; f = files[i]; i++) {
-      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-                  f.size, ' bytes, last modified: ',
-                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
-                  '</li>');
-    }
-    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-  }
-
-  document.getElementById('files-input1').addEventListener('change', handleFileSelect, false);
-  document.getElementById('files-input2').addEventListener('change', handleFileSelect, false);
 </script>
 
 </html>

@@ -20,12 +20,13 @@ input {
 </style>
  </head>
  <body>
-    <h1>DirDiff 1.5</h1>
+    <h1>DirDiff 1.6</h1>
     <h2>Verktøy for å sammenligne filmapper</h2>
     <p>Støtter: txt, xml, html</p>
-    <p>Features: searsh, sort</p>
+    <p>Features: searsh, sort, empty</p>
     
     <table id=maintable>
+    <thead>
         <th>Mappe 1 
             <br><br><input type="file" id="files-input1" multiple />
             <br><input type="text" id="myInput1" onkeyup="search_filter(this,0)" placeholder="Søke filnavn" title="Type in a name">
@@ -34,6 +35,8 @@ input {
             <br><br><input type="file" id="files-input2" multiple />
             <br><input type="text" id="myInput2" onkeyup="search_filter(this,1)" placeholder="Søke filnavn" title="Type in a name">
         </th>
+        </thead>
+        <tbody></tbody>
     </table>
 
 </body>
@@ -65,42 +68,30 @@ input {
         mappe1.sort(SortByName);
         console.log(mappe1);
         // if there only header -> insert data in the column
-        if ($("#maintable").find("tbody").children().length == 1) {
-            for (var i = 0, f; f = mappe1[i]; i++) {
+        if ($("#maintable").find("tbody").children().length > 0) {
+            // clear table
+            $("#maintable").find("tbody").children().remove();
+        }
+        for (var i = 0, f; f = mappe1[i]; i++) {
                 $("#maintable").find("tbody").append($('<tr>')
                         .append($('<td>').text(f.name))
                         .append($('<td>'))
                 );
             }
-        } else {
-            // clear the column
-            
-            // fill the column
-            for (var i = 0, f; f = mappe1[i]; i++) {
-                $("#maintable").find('tr:nth-child('+(i+2)+')')
-                        .find('td:nth-child('+1+')').text(f.name);
-            }
-        }
     });
     
     $("#files-input2").change(function() {
         mappe2 = this.files; // FileList object
         console.log(mappe2);
         // if there only header -> insert data in the column
-        if ($("#maintable").find("tbody").children().length == 1) {
-            for (var i = 0, f; f = mappe2[i]; i++) {
-                $("#maintable").find("tbody").append($('<tr>')
-                        .append($('<td>'))
-                        .append($('<td>').text(f.name))
-                );
-            }
+        if ($("#maintable").find("tbody").children().length == 0) {
+            alert("Fill the first column first");
         } else {
         // fill the column
-            var offset = 0; // if file names do not match
             for (var i = 0, f; f = mappe2[i]; i++) {
             
-                var row = $("#maintable tr:nth-child(2)");
-                var neigbor = row.find('td:nth-child('+1+')');
+                var row = $("#maintable tr:nth-child(1)");
+                var neigbor = row.find('td:nth-child(1)');
                 
          //       alert("1) " + neigbor.html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
           //      alert("2) " + neigbor.next("td").html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
@@ -112,7 +103,7 @@ input {
                     // next neigbor
                     //alert('next row is ' + row.next("tr").html());
                     row = row.next("tr");
-                    neigbor = row.find('td:nth-child('+1+')');
+                    neigbor = row.find('td:nth-child(1)');
           //          alert("1) " + neigbor.html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
             //        alert("2) " + neigbor.next("td").html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
                 }
@@ -122,7 +113,7 @@ input {
                     if (neigbor.next("td").html().localeCompare(f.name) == 0) {
             //             alert('replacing existing file');
                     }
-                    row.find('td:nth-child('+2+')').text(f.name);
+                    row.find('td:nth-child(2)').text(f.name);
                 } else if (neigbor.next("td").html().localeCompare(f.name) == 0) {
            //         alert('same file name in the column. Replace');
                     neigbor.next("td").text(f.name);

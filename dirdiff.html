@@ -20,10 +20,10 @@ input {
 </style>
  </head>
  <body>
-    <h1>DirDiff 1.4</h1>
+    <h1>DirDiff 1.5</h1>
     <h2>Verktøy for å sammenligne filmapper</h2>
     <p>Støtter: txt, xml, html</p>
-    <p>Features: searsh</p>
+    <p>Features: searsh, sort</p>
     
     <table id=maintable>
         <th>Mappe 1 
@@ -49,10 +49,20 @@ input {
 </script>
 
 <script>
+
+
+    // sort FileList
+    function SortByName(a, b){
+        return a.name.localeCompare(b.name);
+    }
+    
     var mappe1, mappe2; // FileList objects
 
     $("#files-input1").change(function() {
-        mappe1 = this.files; 
+        mappe = this.files; 
+        console.log(mappe1);
+        mappe1 = [].slice.call(mappe);
+        mappe1.sort(SortByName);
         console.log(mappe1);
         // if there only header -> insert data in the column
         if ($("#maintable").find("tbody").children().length == 1) {
@@ -92,8 +102,8 @@ input {
                 var row = $("#maintable tr:nth-child(2)");
                 var neigbor = row.find('td:nth-child('+1+')');
                 
-                alert("1) " + neigbor.html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
-                alert("2) " + neigbor.next("td").html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
+         //       alert("1) " + neigbor.html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
+          //      alert("2) " + neigbor.next("td").html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
  
                 // find the correct row
                 while (neigbor.html().localeCompare(f.name) == -1 
@@ -103,27 +113,27 @@ input {
                     //alert('next row is ' + row.next("tr").html());
                     row = row.next("tr");
                     neigbor = row.find('td:nth-child('+1+')');
-                    alert("1) " + neigbor.html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
-                    alert("2) " + neigbor.next("td").html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
+          //          alert("1) " + neigbor.html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
+            //        alert("2) " + neigbor.next("td").html() + " compare " + f.name + "? " + neigbor.html().localeCompare(f.name));
                 }
                 // same file name as in neigbor dir
                 if (neigbor.html().localeCompare(f.name) == 0) { 
-                    alert('same file name in neigbor');
+            //        alert('same file name in neigbor');
                     if (neigbor.next("td").html().localeCompare(f.name) == 0) {
-                         alert('replacing existing file');
+            //             alert('replacing existing file');
                     }
                     row.find('td:nth-child('+2+')').text(f.name);
                 } else if (neigbor.next("td").html().localeCompare(f.name) == 0) {
-                    alert('same file name in the column. Replace');
+           //         alert('same file name in the column. Replace');
                     neigbor.next("td").text(f.name);
                 } else if (neigbor.next("td").html().localeCompare(f.name) == 1
                             || neigbor.html().localeCompare(f.name) == 1 ){
-                        alert('unik file name before');
+           //             alert('unik file name before');
                         neigbor.closest('tr').before($('<tr>')
                             .append($('<td>'))
                             .append($('<td>').text(f.name)));
                 } else {
-                        alert('unik file name');
+            //            alert('unik file name');
                         neigbor.closest('tr').after($('<tr>')
                             .append($('<td>'))
                             .append($('<td>').text(f.name)));

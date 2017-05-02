@@ -20,10 +20,10 @@ input {
 </style>
  </head>
  <body>
-    <h1>DirDiff 1.7</h1>
+    <h1>DirDiff 1.8</h1>
     <h2>Verktøy for å sammenligne filmapper</h2>
     <p>Støtter: txt, xml, html</p>
-    <p>Features: searsh, sort, div.file</p>
+    <p>Features: searsh, sort, toggle</p>
     
     <table id=maintable>
     <thead>
@@ -73,8 +73,12 @@ input {
         }
         for (var i = 0, f; f = mappe1[i]; i++) {
                 $("#maintable").find("tbody").append($('<tr>')
-                        .append($('<td>').append($('<div>'+f.name+'</div>').addClass("file")))
+                        .append($('<td>')
+                                .append($('<div>'+f.name+'</div>').addClass("file"))
+                                .append($('<div>meta data</div>').addClass("metadata").show()))
                         .append($('<td>'))
+                        .click( function() { $(this).find('.metadata').toggle(); })
+
                 );
             }
     });
@@ -111,29 +115,49 @@ input {
             //        alert('same file name in neigbor');
                     if (neigbor.next("td").length > 0 && neigbor.next("td").find("div.file").text().localeCompare(f.name) == 0) {
             //             alert('replacing existing file');
+                           neigbor.next("td").find("div.file").text(f.name); // ?
+                           neigbor.next("td").find("div.metadata").text("meta data 2");
+                    } else { 
+                        neigbor.find("div.metadata").show();
+                        neigbor.next("td")
+                            .append($('<div>'+f.name+'</div>').addClass("file"))
+                            .append($('<div>meta data</div>').addClass("metadata").show());
                     }
-                    row.find('td:nth-child(2)').text(f.name);
                 } else if (neigbor.next("td").length > 0 && neigbor.next("td").find("div.file").text().localeCompare(f.name) == 0) {
            //         alert('same file name in the column. Replace');
-                    neigbor.next("td").text(f.name);
+                    neigbor.next("td").find("div.file").text(f.name);
+                    neigbor.next("td").find("div.metadata").text("meta data 2");
                 } else if (neigbor.next("td").length > 0 && neigbor.next("td").find("div.file").text().localeCompare(f.name) == 1
                             || neigbor.find("div.file").text().localeCompare(f.name) == 1 ){
            //             alert('unik file name before');
                         neigbor.closest('tr').before($('<tr>')
                                     .append($('<td>'))
                                     .append($('<td>')
-                                        .append($('<div>'+f.name+'</div>').addClass("file"))));
+                                        .append($('<div>'+f.name+'</div>').addClass("file"))
+                                        .append($('<div>meta data</div>').addClass("metadata").show())
+                                     )
+                                    .click( function() { $(this).find('.metadata').toggle(); })
+
+                        );
                 } else {
             //            alert('unik file name');
                         neigbor.closest('tr').after($('<tr>')
                             .append($('<td>'))
                             .append($('<td>')
-                                .append($('<div>'+f.name+'</div>').addClass("file"))));
+                                .append($('<div>'+f.name+'</div>').addClass("file"))
+                                .append($('<div>meta data</div>').addClass("metadata").show())
+                            )
+                            .click( function() { $(this).find('.metadata').toggle(); })
+
+                        );
                 }
             }
         }
     });
 
+    $("tr").click(function(){
+        $(this).find("metadata").toggle("swing");
+    });
     
     // https://www.w3schools.com/howto/howto_js_filter_table.asp
     function search_filter(input,column) {
